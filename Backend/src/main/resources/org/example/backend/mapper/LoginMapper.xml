@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.backend.mapper.LoginMapper">
+    <select id="selectLogin" resultType="org.example.backend.pojo.LoginPo">
+        select * from user_info
+        <where>
+            <if test="username!=null">and username=#{username}</if>
+            <if test="password!=null">and password=#{password}</if>
+            <if test="email!=null">and email=#{email}</if>
+        </where>
+    </select>
+    <insert id="register">
+        insert into user_info(username,password,email) value (#{username},#{password},#{email})
+    </insert>
+</mapper>
