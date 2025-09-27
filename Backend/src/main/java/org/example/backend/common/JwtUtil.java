@@ -10,20 +10,20 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.example.backend.common.constant.SECRET;
+
 @Configuration
 public class JwtUtil {
 
     //令牌过期时间 24h
     private static final Long EXPIRATION_TIME = 60*60*1000*24L;
 
-    //秘钥
-    private static final SecretKey SECRET = Keys.secretKeyFor(SignatureAlgorithm.HS512);
 
     //生成jwt令牌
-     public String generateJwt(String username , String email) {
+     public String generateJwt(String username ,boolean status) {
         Map<String, Object> claims = new HashMap<String, Object>();
         claims.put("username", username);
-        claims.put("email", email);
+        claims.put("loginStatus", status);
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)

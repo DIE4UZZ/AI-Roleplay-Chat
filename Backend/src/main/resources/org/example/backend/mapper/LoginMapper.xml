@@ -6,7 +6,7 @@
     <select id="selectLogin" resultType="org.example.backend.pojo.LoginPo">
         select * from user_info
         <where>
-            <if test="username!=null">and username=#{username}</if>
+            <if test="username!=null">username=#{username}</if>
             <if test="password!=null">and password=#{password}</if>
             <if test="email!=null">and email=#{email}</if>
         </where>

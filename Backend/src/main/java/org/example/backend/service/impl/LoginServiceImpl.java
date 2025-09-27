@@ -8,8 +8,10 @@ import org.example.backend.pojo.RegisterPo;
 import org.example.backend.pojo.Result;
 import org.example.backend.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 
@@ -17,30 +19,29 @@ import java.util.regex.Pattern;
 public class LoginServiceImpl implements LoginService {
     @Autowired
     private LoginMapper loginMapper;
+
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @Override
     public Result login(LoginPo po) {
-        //验证用户名是否正确
-        LoginPo UsernamePo = new LoginPo();
-        UsernamePo.setUsername(po.getUsername());
-        if (loginMapper.selectLogin(UsernamePo) == null) {
-            return Result.error(constant.USERNAME_IS_WRONG);
+        LoginPo user = loginMapper.selectLogin(po);
+
+        if (user == null) {
+            LoginPo usernameCheck = new LoginPo();
+            usernameCheck.setUsername(po.getUsername());
+            LoginPo existUser = loginMapper.selectLogin(usernameCheck);
+
+            if (existUser == null) {
+                return Result.error(constant.USERNAME_IS_WRONG);
+            } else {
+                return Result.error(constant.PASSWORD_IS_WRONG);
+            }
         }
-        //验证密码是否正确
-        LoginPo PasswordPo = new LoginPo();
-        PasswordPo.setPassword(po.getPassword());
-        if (loginMapper.selectLogin(PasswordPo) == null) {
-            return Result.error(constant.PASSWORD_IS_WRONG);
-        }
-        //验证邮箱是否正确
-        LoginPo infoEmail = new LoginPo();
-        infoEmail.setEmail(po.getEmail());
-        if (loginMapper.selectLogin(infoEmail) == null) {
-            return Result.error(constant.EMAIL_IS_WRONG);
-        }
-        return Result.success(jwtUtil.generateJwt(po.getUsername(), po.getPassword()));
+        return Result.success(jwtUtil.generateJwt(po.getUsername(), true));
     }
 
     @Override
@@ -67,10 +68,6 @@ public class LoginServiceImpl implements LoginService {
             return Result.error(constant.EMAIL_DOES_NOT_MEET_THE_FORMAT_REQUIREMENTS);
         }
 
-        //验证确认密码是否输入正确
-        if (!po.getPassword().equals(po.getPasswordAgain())) {
-            return Result.error(constant.CONFIRM_PASSWORD_DOES_NOT_MATCH);
-        }
         //检验用户名是否已经存在
         LoginPo infoUsername = new LoginPo();
         infoUsername.setUsername(po.getUsername());
@@ -83,9 +80,17 @@ public class LoginServiceImpl implements LoginService {
         if (loginMapper.selectLogin(infoEmail) != null) {
             return Result.error(constant.EMAIL_ALREADY_EXISTS);
         }
-        LoginPo info=new LoginPo(infoUsername.getUsername(),po.getPassword(),infoEmail.getEmail());
+        LoginPo info = new LoginPo(infoUsername.getUsername(), po.getPassword(), infoEmail.getEmail());
         loginMapper.register(info);
         return Result.success();
+    }
+
+    @Override
+    public Result guest() {
+        String username = UUID.randomUUID().toString();
+        int count = 5;
+        redisTemplate.opsForHash().put("geust", username, count);
+        return Result.success(jwtUtil.generateJwt(username, false));
     }
 }
 
