@@ -15,6 +15,8 @@ public class WebConfig implements WebMvcConfigurer {
                 // 配置需要拦截的路径（/**表示拦截所有请求）
                 .addPathPatterns("")
                 // 配置不需要拦截的路径（如登录接口）
-                .excludePathPatterns("/login");
+                .excludePathPatterns("/login")
+                .excludePathPatterns("/register")
+                .addPathPatterns("/guest");
     }
 }

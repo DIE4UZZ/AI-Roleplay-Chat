@@ -9,10 +9,12 @@ import org.example.backend.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("/api/auth")
+@RestController
 @Slf4j
+@RequestMapping("/api/auth")
 public class LoginController {
 
     @Autowired
@@ -25,9 +27,16 @@ public class LoginController {
         return loginService.login(po);
     }
 
+    //注册接口
     @PostMapping("/register")
     public Result register(@RequestBody RegisterPo po) {
         return loginService.register(po);
+    }
+
+    //游客登录
+    @PostMapping("/guest")
+    public Result guest(){
+        return loginService.guest();
     }
 
 }
