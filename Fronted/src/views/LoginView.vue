@@ -93,10 +93,18 @@
                     id="register-username"
                     v-model="registerForm.username"
                     type="text"
-                    placeholder="请设置用户名"
+                    placeholder="请设置用户名（3-20位字母、数字或下划线）"
                     required
                     class="form-input"
+                    @input="handleUsernameInput"
+                    :class="{ 'error': registerErrors.username }"
                   />
+                </div>
+                <div v-if="registerErrors.username" class="error-tip">
+                  {{ registerErrors.username }}
+                </div>
+                <div v-else-if="registerForm.username && !registerErrors.username" class="success-tip">
+                  用户名格式正确
                 </div>
               </div>
               <div class="form-group">
@@ -124,10 +132,18 @@
                     placeholder="请设置密码（至少6位）"
                     required
                     class="form-input"
+                    @input="handlePasswordInput"
+                    :class="{ 'error': registerErrors.password }"
                   />
                 </div>
+                <div v-if="registerErrors.password" class="error-tip">
+                  {{ registerErrors.password }}
+                </div>
+                <div v-else-if="registerForm.password && !registerErrors.password" class="success-tip">
+                  密码格式正确
+                </div>
               </div>
-              <button type="submit" class="submit-btn" :disabled="loading">
+              <button type="submit" class="submit-btn" :disabled="loading || !isRegisterFormValid">
                 <span v-if="loading" class="loading-spinner"></span>
                 {{ loading ? '注册中...' : '注册' }}
               </button>
@@ -167,7 +183,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import authService from '../services/auth.service';
 import type { LoginFormData, RegisterFormData } from '../types/user';
@@ -190,6 +206,55 @@ const registerForm = ref<RegisterFormData>({
   username: '',
   password: '',
   email: '',
+});
+
+// 表单验证状态
+const registerErrors = ref({
+  username: '',
+  password: '',
+});
+
+// 用户名特殊字符正则表达式（只允许字母、数字、下划线）
+const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+
+// 检查用户名是否有效
+const validateUsername = (username: string): string => {
+  if (!username) {
+    return '请输入用户名';
+  }
+  if (!usernameRegex.test(username)) {
+    return '用户名只能包含字母、数字和下划线，长度3-20位';
+  }
+  return '';
+};
+
+// 检查密码是否有效
+const validatePassword = (password: string): string => {
+  if (!password) {
+    return '请输入密码';
+  }
+  if (password.length < 6) {
+    return '密码长度至少为6位';
+  }
+  return '';
+};
+
+// 实时验证用户名
+const handleUsernameInput = () => {
+  registerErrors.value.username = validateUsername(registerForm.value.username);
+};
+
+// 实时验证密码
+const handlePasswordInput = () => {
+  registerErrors.value.password = validatePassword(registerForm.value.password);
+};
+
+// 计算表单是否有效
+const isRegisterFormValid = computed(() => {
+  return !registerErrors.value.username && 
+         !registerErrors.value.password && 
+         registerForm.value.username && 
+         registerForm.value.password;
 });
 
 // 切换标签页
@@ -221,6 +286,14 @@ const handleLogin = async () => {
 
 // 处理注册
 const handleRegister = async () => {
+  // 再次验证表单
+  registerErrors.value.username = validateUsername(registerForm.value.username);
+  registerErrors.value.password = validatePassword(registerForm.value.password);
+  
+  if (!isRegisterFormValid.value) {
+    return;
+  }
+
   loading.value = true;
   error.value = '';
 
@@ -230,10 +303,21 @@ const handleRegister = async () => {
       // 注册成功，跳转到首页
       router.push('/home');
     } else {
+      // 处理后端返回的错误，特别是用户名已存在的错误
       error.value = response.message || '注册失败，请稍后重试';
+      if (error.value.includes('用户名已存在')) {
+        registerErrors.value.username = error.value;
+      }
     }
   } catch (err) {
-    error.value = '注册失败，请稍后重试';
+    // 捕获网络请求错误
+    const errorObj = err as any;
+    if (errorObj.response?.data?.message?.includes('用户名已存在')) {
+      error.value = '用户名已存在，请更换其他用户名';
+      registerErrors.value.username = error.value;
+    } else {
+      error.value = '注册失败，请稍后重试';
+    }
     console.error('注册错误:', err);
   } finally {
     loading.value = false;
@@ -599,6 +683,31 @@ const handleGuestLogin = async () => {
   gap: 8px;
   font-size: 0.95rem;
   border: 1px solid var(--error-border);
+}
+
+/* 输入错误状态 */
+.form-input.error {
+  border-color: var(--error-color);
+  box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.1);
+}
+
+/* 输入框提示信息 */
+.error-tip {
+  color: var(--error-color);
+  font-size: 0.85rem;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.success-tip {
+  color: var(--success-color);
+  font-size: 0.85rem;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .error-icon {

@@ -5,7 +5,8 @@ import authService from '../services/auth.service';
 const routes = [
   {
     path: '/',
-    redirect: '/login', // 默认重定向到登录页面
+    name: 'Home',
+    component: () => import('../views/HomeView.vue'),
   },
   {
     path: '/login',
@@ -20,7 +21,7 @@ const routes = [
     name: 'Home',
     component: () => import('../views/HomeView.vue'),
     meta: {
-      requiresAuth: true, // 需要登录才能访问
+      guestOnly: true, // 需要登录才能访问
     },
   },
   // 404 页面
