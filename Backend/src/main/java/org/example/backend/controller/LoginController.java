@@ -22,7 +22,7 @@ public class LoginController {
 
 
     //登录接口
-    @PostMapping("login")
+    @PostMapping("/login")
     public Result login(@RequestBody LoginPo po) {
         return loginService.login(po);
     }

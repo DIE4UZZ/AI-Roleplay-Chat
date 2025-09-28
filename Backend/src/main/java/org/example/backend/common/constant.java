@@ -53,4 +53,10 @@ public interface constant {
 
     //Token验证失败
     String TOKEN_IS_WRONG = "token is wrong";
+
+    //关键词为空
+    String KEYWORD_IS_EMPTY = "keyword is empty";
+
+    //没有这个角色
+    String NO_CHARACTER="no character";
 }

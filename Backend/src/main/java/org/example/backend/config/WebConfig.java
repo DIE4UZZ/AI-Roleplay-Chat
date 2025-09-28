@@ -13,10 +13,10 @@ public class WebConfig implements WebMvcConfigurer {
         // 添加JWT拦截器
         registry.addInterceptor(new JwtInterceptor())
                 // 配置需要拦截的路径（/**表示拦截所有请求）
-                .addPathPatterns("")
+                .addPathPatterns("/api/user/roles/**")
                 // 配置不需要拦截的路径（如登录接口）
                 .excludePathPatterns("/login")
                 .excludePathPatterns("/register")
-                .addPathPatterns("/guest");
+                .excludePathPatterns("/guest");
     }
 }

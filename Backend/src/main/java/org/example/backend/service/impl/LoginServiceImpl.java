@@ -41,6 +41,7 @@ public class LoginServiceImpl implements LoginService {
                 return Result.error(constant.PASSWORD_IS_WRONG);
             }
         }
+        redisTemplate.opsForSet().add(po.getUsername(), -1);
         return Result.success(jwtUtil.generateJwt(po.getUsername(), true));
     }
 
@@ -89,7 +90,7 @@ public class LoginServiceImpl implements LoginService {
     public Result guest() {
         String username = UUID.randomUUID().toString();
         int count = 5;
-        redisTemplate.opsForHash().put("geust", username, count);
+        redisTemplate.opsForHash().put("guest", username, count);
         return Result.success(jwtUtil.generateJwt(username, false));
     }
 }

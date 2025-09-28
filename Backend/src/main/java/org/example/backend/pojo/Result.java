@@ -20,6 +20,9 @@ public class Result {
         return new Result(1, constant.SUCCESS, null);
     }
 
+
+    public static Result success(String mes) {return new Result(1, mes, null);}
+
     //查询，成功
     public static Result success(Object data) {
         return new Result(1, constant.SUCCESS, data);
