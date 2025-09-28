@@ -1,17 +1,14 @@
 package org.example.backend.service;
 
 import org.apache.el.parser.Token;
-import org.example.backend.pojo.LoginPo;
-import org.example.backend.pojo.RegisterPo;
-import org.example.backend.pojo.Result;
-import org.example.backend.pojo.guestResult;
+import org.example.backend.pojo.*;
 import org.springframework.stereotype.Service;
 
 
 public interface LoginService {
-    Result login(LoginPo po);
+    LoginResult login(LoginPo po);
 
-    Result register(RegisterPo po);
+    LoginResult register(RegisterPo po);
 
     guestResult guest();
 }
