@@ -1,0 +1,27 @@
+# LLM模型相关依赖
+openai==1.30.5
+# 或者使用其他LLM模型SDK，根据实际情况选择
+# ollama==0.1.7
+# anthropic==0.24.0
+
+# 语音识别相关依赖
+SpeechRecognition==3.10.0
+pyaudio==0.2.14
+
+# TTS相关依赖
+gTTS==2.4.0
+pydub==0.25.1
+ffmpeg-python==0.2.0
+
+# API服务依赖
+fastapi==0.111.0
+uvicorn==0.29.0
+huggingface_hub==0.23.4
+
+# 基础依赖
+python-dotenv==1.0.1
+requests==2.31.0
+
+# 可选依赖（根据需要添加）
+# torch==2.3.0
+# transformers==4.41.2
