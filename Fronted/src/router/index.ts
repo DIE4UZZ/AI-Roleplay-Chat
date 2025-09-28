@@ -24,6 +24,14 @@ const routes = [
       guestOnly: true, // 需要登录才能访问
     },
   },
+  {
+    path: '/chat',
+    name: 'Chat',
+    component: () => import('../views/ChatView.vue'),
+    meta: {
+      guestOnly: true, // 需要登录才能访问
+    },
+  },
   // 404 页面
   {
     path: '/:pathMatch(.*)*',

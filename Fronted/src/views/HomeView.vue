@@ -206,19 +206,13 @@ const handleRegisterPrompt = () => {
 };
 
 const handleStartChat = () => {
-  // 这里可以实现开始对话的逻辑
-  if (isLoggedIn.value) {
-    // 已登录用户的处理
-    console.log('开始对话');
-  } else {
-    // 未登录用户的处理
-    router.push('/login');
-  }
+  // 直接导航到聊天页面
+  router.push('/chat');
 };
 
 const handleExploreCharacters = () => {
-  // 这里可以实现探索角色的逻辑
-  console.log('探索角色');
+  // 同样导航到聊天页面，用户可以在那里浏览角色
+  router.push('/chat');
 };
 
 const toggleProfileMenu = () => {
