@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.backend.pojo.LoginPo;
 import org.example.backend.pojo.RegisterPo;
 import org.example.backend.pojo.Result;
+import org.example.backend.pojo.guestResult;
 import org.example.backend.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,7 +36,7 @@ public class LoginController {
 
     //游客登录
     @PostMapping("/guest")
-    public Result guest(){
+    public guestResult guest(){
         return loginService.guest();
     }
 

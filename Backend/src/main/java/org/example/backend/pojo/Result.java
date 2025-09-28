@@ -11,25 +11,28 @@ import org.example.backend.common.constant;
 @NoArgsConstructor
 public class Result {
 
-    private int code;
-    private String message;
-    private Object data;
+    private Boolean success;
+
+    private String token;
+    private Object trialCount;
 
     //增删改，成功
     public static Result success() {
-        return new Result(1, constant.SUCCESS, null);
+        return new Result(true, constant.SUCCESS, null);
     }
 
 
-    public static Result success(String mes) {return new Result(1, mes, null);}
+    public static Result success(Object mes) {return new Result(true, null, null);}
 
     //查询，成功
-    public static Result success(Object data) {
-        return new Result(1, constant.SUCCESS, data);
+    public static Result success(String token ,Object data) {
+        return new Result(true, token, data);
     }
+
+    public static Result successLogin(Object data) {return new Result(true, null, data);}
 
     //失败
     public static Result error(String message) {
-        return new Result(-1,message, null);
+        return new Result(false,message, null);
     }
 }

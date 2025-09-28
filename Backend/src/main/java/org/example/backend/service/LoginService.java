@@ -4,6 +4,7 @@ import org.apache.el.parser.Token;
 import org.example.backend.pojo.LoginPo;
 import org.example.backend.pojo.RegisterPo;
 import org.example.backend.pojo.Result;
+import org.example.backend.pojo.guestResult;
 import org.springframework.stereotype.Service;
 
 
@@ -12,5 +13,5 @@ public interface LoginService {
 
     Result register(RegisterPo po);
 
-    Result guest();
+    guestResult guest();
 }

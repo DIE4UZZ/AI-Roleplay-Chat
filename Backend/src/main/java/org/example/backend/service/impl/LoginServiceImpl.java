@@ -6,6 +6,7 @@ import org.example.backend.mapper.LoginMapper;
 import org.example.backend.pojo.LoginPo;
 import org.example.backend.pojo.RegisterPo;
 import org.example.backend.pojo.Result;
+import org.example.backend.pojo.guestResult;
 import org.example.backend.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -42,7 +43,7 @@ public class LoginServiceImpl implements LoginService {
             }
         }
         redisTemplate.opsForSet().add(po.getUsername(), -1);
-        return Result.success(jwtUtil.generateJwt(po.getUsername(), true));
+        return Result.successLogin(jwtUtil.generateJwt(po.getUsername(), true));
     }
 
     @Override
@@ -87,11 +88,11 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public Result guest() {
+    public guestResult guest() {
         String username = UUID.randomUUID().toString();
         int count = 5;
         redisTemplate.opsForHash().put("guest", username, count);
-        return Result.success(jwtUtil.generateJwt(username, false));
+        return guestResult.success(jwtUtil.generateJwt(username, false),1);
     }
 }
 
