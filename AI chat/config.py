@@ -31,8 +31,8 @@ class Config:
     DEEPSEEK_TEMPERATURE = float(os.getenv("DEEPSEEK_TEMPERATURE", "0.7"))
     
     # TTS 配置
-    TTS_ENGINE = os.getenv("TTS_ENGINE", "gtts")
-    TTS_API_KEY = os.getenv("TTS_API_KEY")
+    TTS_ENGINE = os.getenv("TTS_ENGINE", "api")
+    TTS_API_KEY = os.getenv("TTS_API_KEY", "sk-8a268512b92eda58a71bfcec10d3321cf7e21d60be8a686cf8c49877c6c73786")
     TTS_BASE_URL = os.getenv("TTS_BASE_URL", "https://openai.qiniu.com/v1")
     TTS_BACKUP_BASE_URL = os.getenv("TTS_BACKUP_BASE_URL", "https://api.qnaigc.com/v1")
     TTS_MODEL = os.getenv("TTS_MODEL", "tts")
@@ -41,10 +41,6 @@ class Config:
     
     # 语音识别配置
     SPEECH_RECOGNITION_LANGUAGE = os.getenv('SPEECH_RECOGNITION_LANGUAGE', 'zh-CN')
-    
-    # TTS配置
-    TTS_LANG = os.getenv('TTS_LANG', 'zh-cn')
-    TTS_SLOW = os.getenv('TTS_SLOW', 'False').lower() == 'true'
     
     # 默认模型选择
     DEFAULT_LLM_PROVIDER = os.getenv('DEFAULT_LLM_PROVIDER', 'openai')  # openai, ollama, anthropic, deepseek

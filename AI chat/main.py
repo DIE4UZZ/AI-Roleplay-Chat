@@ -50,6 +50,8 @@ from api.character_routes import router as character_router
 
 app.include_router(chat_router, prefix="/api/chat", tags=["聊天"])
 app.include_router(speech_router, prefix="/api/speech", tags=["语音"])
+app.include_router(speech_router, prefix="/api/voice", tags=["语音"])
+app.include_router(speech_router, prefix="/voice", tags=["语音"])
 app.include_router(character_router, prefix="/api", tags=["角色"])
 
 # 测试接口

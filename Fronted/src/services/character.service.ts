@@ -56,10 +56,14 @@ class CharacterService {
   // 发送聊天消息
   async sendMessage(characterId: number, message: string): Promise<string> {
     try {
-      // 调用专门处理前端格式的接口
+      // 获取角色详情，用于构建完整的角色上下文
+      const character = await this.getCharacterById(characterId);
+      
+      // 调用专门处理前端格式的接口，包含完整的角色上下文
       const data = await api.post('/chat/character/send', {
         characterId,
-        message
+        message,
+        characterContext: character
       });
       return data.reply || '抱歉，我无法回答这个问题。';
     } catch (error) {
@@ -108,6 +112,21 @@ class CharacterService {
       console.error('结束语音识别失败:', error);
       // 在API不可用的情况下返回模拟文本
       return { text: '这是一段模拟的语音输入内容' };
+    }
+  }
+
+  // 触发角色的自主行动
+  async triggerAutonomousAction(characterId: number, situation?: string): Promise<string> {
+    try {
+      const data = await api.post('/chat/agent/autonomous-action', {
+        characterId,
+        situation
+      });
+      return data.reply || '抱歉，我现在无法执行这个操作。';
+    } catch (error) {
+      console.error('触发角色自主行动失败:', error);
+      // 在API不可用的情况下返回模拟回复
+      return '角色正在思考中...';
     }
   }
 }

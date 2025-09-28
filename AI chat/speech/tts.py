@@ -110,7 +110,18 @@ class TextToSpeech:
             
             # 尝试不同的参数格式
             request_bodies = [
-                # 格式1: 标准OpenAI格式
+                # 格式1: 用户提供的七牛TTS API格式
+                {
+                    "audio": {
+                        "voice_type": "zh_male_M392_conversation_wvae_bigtts",
+                        "encoding": "mp3",
+                        "speed_ratio": 1.0
+                    },
+                    "request": {
+                        "text": text
+                    }
+                },
+                # 格式2: 标准OpenAI格式
                 {
                     "model": self.api_model,
                     "input": text,
@@ -118,12 +129,12 @@ class TextToSpeech:
                     "response_format": "mp3",
                     "speed": 1.0
                 },
-                # 格式2: 可能的DeepSeek TTS格式
+                # 格式3: 可能的DeepSeek TTS格式
                 {
                     "text": text,
                     "model": self.api_model
                 },
-                # 格式3: 简化版参数
+                # 格式4: 简化版参数
                 {
                     "text": text
                 }
@@ -132,6 +143,7 @@ class TextToSpeech:
             # 尝试不同的API端点格式
             base_urls = [self.api_base_url, self.api_backup_base_url]
             endpoint_paths = [
+                "/voice/tts",  # 用户提供的七牛API端点
                 "/audio/speech",
                 "/speech/generate",
                 "/tts/generate",
@@ -267,7 +279,18 @@ class TextToSpeech:
             
             # 尝试不同的参数格式
             request_bodies = [
-                # 格式1: 标准OpenAI格式
+                # 格式1: 用户提供的七牛TTS API格式
+                {
+                    "audio": {
+                        "voice_type": "zh_male_M392_conversation_wvae_bigtts",
+                        "encoding": "mp3",
+                        "speed_ratio": 1.0
+                    },
+                    "request": {
+                        "text": text
+                    }
+                },
+                # 格式2: 标准OpenAI格式
                 {
                     "model": self.api_model,
                     "input": text,
@@ -275,12 +298,12 @@ class TextToSpeech:
                     "response_format": "mp3",
                     "speed": 1.0
                 },
-                # 格式2: 可能的DeepSeek TTS格式
+                # 格式3: 可能的DeepSeek TTS格式
                 {
                     "text": text,
                     "model": self.api_model
                 },
-                # 格式3: 简化版参数
+                # 格式4: 简化版参数
                 {
                     "text": text
                 }
@@ -289,6 +312,7 @@ class TextToSpeech:
             # 尝试不同的API端点格式
             base_urls = [self.api_base_url, self.api_backup_base_url]
             endpoint_paths = [
+                "/voice/tts",  # 用户提供的七牛API端点
                 "/audio/speech",
                 "/speech/generate",
                 "/tts/generate",

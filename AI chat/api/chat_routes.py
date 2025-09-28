@@ -14,10 +14,12 @@ from api.models import (
 
 
 
-# 导入LLM模型
+# 导入LLM模型和Agent
 from llm.openai_llm import OpenAILLM
 from llm.deeplseek_llm import DeepSeekLLM
+from llm.agent import AgentManager
 from config import env_config
+from api.character_routes import characters_data
 
 # 创建路由实例
 router = APIRouter()
@@ -90,12 +92,38 @@ async def send_chat_message(request: ChatRequest):
         provider = request.model_provider or env_config.DEFAULT_LLM_PROVIDER
         model_name = request.model_name or getattr(env_config, f"{provider.upper()}_MODEL", "default")
         
+        # 获取角色上下文信息
+        character_context = request.character_context
+        
+        # 如果没有直接提供角色上下文但提供了角色ID，尝试从字符数据中获取角色信息
+        if not character_context and request.character_id:
+            for char in characters_data:
+                if char['id'] == request.character_id:
+                    character_context = CharacterContext(
+                        name=char['name'],
+                        description=char['description'],
+                        avatar=char['avatar'],
+                        category=char['category']
+                    )
+                    break
+        
         # 调用模型生成响应
-        reply = model.generate_response(
-            prompt=request.prompt,
-            character_context=request.character_context.dict() if request.character_context else None,
-            chat_history=request.chat_history
-        )
+        reply = ""
+        if character_context:
+            # 使用Agent功能，确保角色身份完全融入响应
+            agent_manager = AgentManager.get_instance()
+            agent = agent_manager.get_agent(model, character_context)
+            reply = agent.generate_response(
+                prompt=request.prompt,
+                chat_history=request.chat_history
+            )
+        else:
+            # 标准响应生成
+            reply = model.generate_response(
+                prompt=request.prompt,
+                character_context=None,
+                chat_history=request.chat_history
+            )
         
         logger.info(f"聊天请求处理完成，回复长度: {len(reply)} 字符")
         
@@ -151,11 +179,12 @@ async def character_chat_message(request: dict):
     """
     角色聊天接口，处理前端发送的角色聊天请求
     
-    前端调用格式：POST /api/chat/character/send { characterId, message }
+    前端调用格式：POST /api/chat/character/send { characterId, message, characterContext }
     """
     # 从请求体中获取数据
     character_id = request.get('characterId')
     message = request.get('message')
+    character_context_data = request.get('characterContext')
     
     if not message:
         raise HTTPException(status_code=400, detail="消息内容不能为空")
@@ -163,7 +192,8 @@ async def character_chat_message(request: dict):
     # 构建请求对象
     chat_request = ChatRequest(
         prompt=message,
-        character_id=character_id
+        character_id=character_id,
+        character_context=CharacterContext(**character_context_data) if character_context_data else None
     )
     
     # 调用主聊天接口
@@ -195,4 +225,84 @@ async def clear_chat_history(character_id: int):
     # 注意：实际应用中应该从数据库或其他存储中删除历史记录
     logger.info(f"清除角色 {character_id} 的聊天历史")
     
+    # 同时清除对应的Agent实例
+    agent_manager = AgentManager.get_instance()
+    
+    # 根据character_id查找角色名称
+    character_name = None
+    for char in characters_data:
+        if char['id'] == character_id:
+            character_name = char['name']
+            break
+    
+    # 如果找到了角色名称，清除对应的Agent实例
+    if character_name:
+        agent_manager.clear_agent(character_name)
+        logger.info(f"清除角色 {character_name} 的Agent实例")
+    
     return {"status": "success", "message": "聊天历史已清除"}
+
+# 角色自主行动接口
+@router.post("/agent/autonomous-action", response_model=ChatResponse)
+async def autonomous_action(request: dict):
+    """
+    触发角色的自主行动
+    
+    前端调用格式：POST /api/chat/agent/autonomous-action { characterId, situation }
+    
+    - **characterId**: 角色ID
+    - **situation**: 当前情境描述（可选）
+    
+    响应：
+    - **reply**: 角色的自主行动描述
+    - **character_id**: 角色ID
+    - **model_provider**: 使用的模型提供商
+    - **model_name**: 使用的模型名称
+    """
+    try:
+        # 从请求体中获取数据
+        character_id = request.get('characterId')
+        situation = request.get('situation', '')
+        
+        if not character_id:
+            raise HTTPException(status_code=400, detail="角色ID不能为空")
+        
+        logger.info(f"触发角色 {character_id} 的自主行动，情境: {situation}")
+        
+        # 获取角色信息
+        character = next((char for char in characters_data if char["id"] == character_id), None)
+        if not character:
+            raise HTTPException(status_code=404, detail="角色不存在")
+        
+        # 创建角色上下文
+        character_context = CharacterContext(
+            name=character["name"],
+            description=character["description"],
+            avatar=character["avatar"],
+            category=character["category"]
+        )
+        
+        # 获取模型实例
+        model = ModelManager.get_model()
+        provider = env_config.DEFAULT_LLM_PROVIDER
+        model_name = getattr(env_config, f"{provider.upper()}_MODEL", "default")
+        
+        # 使用Agent执行自主行动
+        agent_manager = AgentManager.get_instance()
+        agent = agent_manager.get_agent(model, character_context)
+        autonomous_reply = agent.autonomous_action(situation)
+        
+        logger.info(f"角色自主行动完成")
+        
+        return ChatResponse(
+            reply=autonomous_reply,
+            character_id=character_id,
+            model_provider=provider,
+            model_name=model_name
+        )
+        
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(f"角色自主行动失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="内部服务器错误")
