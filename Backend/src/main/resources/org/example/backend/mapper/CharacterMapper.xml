@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.backend.mapper.CharacterMapper">
+    <select id="getCharacter" resultType="org.example.backend.pojo.Character">
+        SELECT id, name, `desc`, avatar
+        FROM `Character`
+        WHERE name LIKE CONCAT('%', #{keyword}, '%')
+    </select>
+
+    <select id="getBackground" resultType="String">
+        SELECT background FROM `Character`
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insertSaveCharacter">
+        INSERT INTO
+        save_character (character_id,username) VALUES (#{characterId},#{username})
+    </insert>
+
+    <select id="getCharacterById" resultType="org.example.backend.pojo.Character">
+        SELECT id, name, `desc`, avatar
+        FROM `Character`
+        WHERE id=#{id}
+    </select>
+</mapper>
