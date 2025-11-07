@@ -1,8 +1,11 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form, BackgroundTasks
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, BackgroundTasks, Request
 from fastapi.responses import FileResponse, StreamingResponse
 import os
 import tempfile
 import logging
+import uuid
+import asyncio
+from typing import Dict, Optional
 
 # 导入数据模型
 from api.models import (
@@ -25,6 +28,10 @@ router = APIRouter()
 
 # 配置日志
 logger = logging.getLogger("ai_chat_service.api.speech")
+
+# 语音识别会话管理
+recognition_sessions: Dict[str, Dict] = {}
+
 
 # 语音识别接口
 @router.post("/recognize", response_model=SpeechRecognitionResponse, responses={400: {"model": ErrorResponse}, 500: {"model": ErrorResponse}})
@@ -195,6 +202,79 @@ async def voice_chat(
             
     except Exception as e:
         logger.error(f"语音聊天处理失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+# 语音识别会话接口 - 开始
+@router.post("/start", responses={500: {"model": ErrorResponse}})
+async def start_voice_recognition():
+    """
+    开始语音识别会话
+    
+    返回:
+    - **id**: 会话ID
+    """
+    try:
+        # 生成会话ID
+        session_id = str(uuid.uuid4())
+        
+        logger.info(f"开始语音识别会话: {session_id}")
+        
+        # 在实际应用中，这里应该初始化实时语音识别会话
+        # 目前我们只是创建一个会话记录
+        recognition_sessions[session_id] = {
+            "started_at": asyncio.get_event_loop().time(),
+            "status": "active"
+        }
+        
+        return {"id": session_id}
+        
+    except Exception as e:
+        logger.error(f"启动语音识别会话失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="内部服务器错误")
+
+# 语音识别会话接口 - 停止
+@router.post("/stop", responses={400: {"model": ErrorResponse}, 500: {"model": ErrorResponse}})
+async def stop_voice_recognition(request: Request):
+    """
+    停止语音识别会话并获取识别结果
+    
+    请求体参数:
+    - **sessionId**: 会话ID
+    
+    返回:
+    - **text**: 识别的文本
+    """
+    try:
+        # 从请求体中获取sessionId
+        body = await request.json()
+        session_id = body.get("sessionId")
+        
+        if not session_id:
+            raise HTTPException(status_code=400, detail="缺少sessionId参数")
+        
+        logger.info(f"停止语音识别会话: {session_id}")
+        
+        # 检查会话是否存在
+        if session_id not in recognition_sessions:
+            raise HTTPException(status_code=400, detail="无效的会话ID")
+        
+        # 更新会话状态
+        recognition_sessions[session_id]["status"] = "completed"
+        recognition_sessions[session_id]["completed_at"] = asyncio.get_event_loop().time()
+        
+        # 在实际应用中，这里应该获取实时语音识别的结果
+        # 目前我们返回一个模拟的识别结果
+        # 注意：在实际部署时，应该使用真实的语音识别功能
+        simulated_text = "这是一段模拟的语音输入内容，在实际应用中会被真实的识别结果替换"
+        
+        logger.info(f"语音识别会话完成，结果: {simulated_text}")
+        
+        return {"text": simulated_text}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"停止语音识别会话失败: {str(e)}")
         raise HTTPException(status_code=500, detail="内部服务器错误")
 
 # 清理临时文件的后台任务（实际应用中需要更完善的实现）

@@ -164,5 +164,24 @@ export const useCharacterStore = defineStore('character', {
         throw error;
       }
     },
+
+    // 触发角色的自主行动
+    async triggerAutonomousAction(situation?: string): Promise<void> {
+      if (!this.selectedCharacter) {
+        this.error = '请先选择一个角色';
+        return;
+      }
+      
+      this.isLoading = true;
+      try {
+        const reply = await characterService.triggerAutonomousAction(this.selectedCharacter.id, situation);
+        this.addMessage(reply, 'ai');
+      } catch (error) {
+        console.error('触发角色自主行动失败:', error);
+        this.error = '触发角色行动失败，请稍后再试';
+      } finally {
+        this.isLoading = false;
+      }
+    },
   },
 });

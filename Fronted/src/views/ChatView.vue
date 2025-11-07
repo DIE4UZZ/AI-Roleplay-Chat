@@ -325,20 +325,30 @@ const formatTime = (date: Date) => {
 
 <style scoped>
 :root {
-  --primary-color: #4f46e5;
-  --primary-hover: #4338ca;
-  --secondary-color: #6366f1;
+  /* 现代化颜色方案 */
+  --primary-color: #6366f1;
+  --primary-hover: #4f46e5;
+  --secondary-color: #8b5cf6;
+  --tertiary-color: #ec4899;
   --text-primary: #1f2937;
   --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
   --bg: #f9fafb;
   --card: #ffffff;
   --border: #e5e7eb;
   --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* 动画时长 */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
 }
 
 .chat-container {
@@ -346,13 +356,44 @@ const formatTime = (date: Date) => {
   display: flex;
   flex-direction: column;
   background-color: var(--bg);
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 20%),
+    radial-gradient(circle at 80% 60%, rgba(236, 72, 153, 0.05) 0%, transparent 25%);
 }
 
 .chat-header {
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  background: linear-gradient(135deg, var(--primary-color), var(--tertiary-color));
   color: white;
   padding: 1rem 0;
   box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.chat-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: floating 8s ease-in-out infinite;
+}
+
+@keyframes floating {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(5%, 5%) rotate(5deg);
+  }
+  50% {
+    transform: translate(0, 10%) rotate(0deg);
+  }
+  75% {
+    transform: translate(-5%, 5%) rotate(-5deg);
+  }
 }
 
 .header-content {
@@ -390,11 +431,31 @@ const formatTime = (date: Date) => {
 .btn {
   padding: 0.5rem 1rem;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal);
   font-size: 0.875rem;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+  transform: translateX(-100%);
+  transition: transform var(--transition-fast);
+  z-index: -1;
+}
+
+.btn:hover::before {
+  transform: translateX(100%);
 }
 
 .btn-primary {
@@ -405,17 +466,20 @@ const formatTime = (date: Date) => {
 .btn-primary:hover {
   background-color: var(--primary-hover);
   transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-secondary {
   background-color: rgba(255, 255, 255, 0.2);
   color: white;
   backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .btn-secondary:hover {
   background-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .chat-main {
@@ -435,6 +499,9 @@ const formatTime = (date: Date) => {
   box-shadow: var(--shadow-md);
   padding: 2rem;
   height: 100%;
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(229, 231, 235, 0.5);
 }
 
 .panel-header {
@@ -526,10 +593,23 @@ const formatTime = (date: Date) => {
   border-radius: var(--radius-md);
   padding: 1.5rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal);
   display: flex;
   align-items: center;
   gap: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.character-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+  transition: left var(--transition-slow);
 }
 
 .character-card:hover {
@@ -538,9 +618,13 @@ const formatTime = (date: Date) => {
   border-color: var(--primary-color);
 }
 
+.character-card:hover::before {
+  left: 100%;
+}
+
 .character-avatar {
   font-size: 3rem;
-  background-color: rgba(79, 70, 229, 0.1);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.1));
   width: 60px;
   height: 60px;
   border-radius: 50%;
@@ -548,6 +632,11 @@ const formatTime = (date: Date) => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transition: transform var(--transition-normal);
+}
+
+.character-card:hover .character-avatar {
+  transform: scale(1.1) rotate(5deg);
 }
 
 .character-info {
@@ -628,6 +717,9 @@ const formatTime = (date: Date) => {
   border-radius: var(--radius-md);
   position: relative;
   animation: slideIn 0.3s ease;
+  word-wrap: break-word;
+  line-height: 1.5;
+  box-shadow: var(--shadow);
 }
 
 @keyframes slideIn {
@@ -643,9 +735,9 @@ const formatTime = (date: Date) => {
 
 .message.user {
   align-self: flex-end;
-  background-color: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   color: white;
-  border-radius: var(--radius-md) 0 var(--radius-md) var(--radius-md);
+  border-radius: var(--radius-md) 4px var(--radius-md) var(--radius-md);
 }
 
 .message.ai {
@@ -653,7 +745,7 @@ const formatTime = (date: Date) => {
   background-color: var(--bg);
   color: var(--text-primary);
   border: 1px solid var(--border);
-  border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
+  border-radius: 4px var(--radius-md) var(--radius-md) var(--radius-md);
 }
 
 .message-content {
@@ -666,29 +758,58 @@ const formatTime = (date: Date) => {
   opacity: 0.7;
   margin-top: 0.25rem;
   text-align: right;
+  font-weight: 500;
+  letter-spacing: 0.5px;
 }
 
 .chat-input-container {
   background-color: var(--card);
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-  box-shadow: var(--shadow);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
   padding: 1.5rem;
   border-top: 1px solid var(--border);
+  position: relative;
+}
+
+.chat-input-container::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 10px;
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.02));
+  border-radius: 50%;
 }
 
 .input-wrapper {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
+  max-width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  padding: 0.25rem;
+  box-shadow: var(--shadow);
+  transition: all var(--transition-normal);
+}
+
+.input-wrapper:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 .message-input {
   flex: 1;
   padding: 0.75rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border: none;
+  border-radius: var(--radius-full);
   font-size: 1rem;
   outline: none;
-  transition: border-color 0.3s ease;
+  background: transparent;
+  min-width: 0;
 }
 
 .message-input:focus {
@@ -705,38 +826,74 @@ const formatTime = (date: Date) => {
   width: 44px;
   height: 44px;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: 50%;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.25rem;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.voice-btn::before, .send-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width var(--transition-slow), height var(--transition-slow);
+}
+
+.voice-btn:hover::before, .send-btn:hover::before {
+  width: 80px;
+  height: 80px;
 }
 
 .voice-btn {
   background-color: var(--bg);
   border: 1px solid var(--border);
+  color: var(--text-primary);
 }
 
 .voice-btn:hover {
   background-color: var(--border);
+  transform: scale(1.05);
 }
 
 .voice-btn.recording {
   background-color: #ef4444;
   color: white;
   border-color: #ef4444;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
 }
 
 .send-btn {
-  background-color: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   color: white;
 }
 
 .send-btn:hover:not(:disabled) {
-  background-color: var(--primary-hover);
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, var(--primary-hover), var(--secondary-color));
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: var(--shadow-md);
 }
 
 .send-btn:disabled {
@@ -876,14 +1033,17 @@ const formatTime = (date: Date) => {
 .typing-indicator {
   display: flex;
   gap: 6px;
+  align-items: center;
+  padding: 0.5rem 0;
 }
 
 .typing-dot {
   width: 8px;
   height: 8px;
-  background-color: var(--text-secondary);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   border-radius: 50%;
   animation: typing 1.4s infinite ease-in-out both;
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
 }
 
 .typing-dot:nth-child(1) {
@@ -901,18 +1061,21 @@ const formatTime = (date: Date) => {
 @keyframes typing {
   0%, 80%, 100% {
     transform: scale(0);
+    opacity: 0.3;
   }
   40% {
     transform: scale(1);
+    opacity: 1;
   }
 }
 
 /* 录音指示器 */
-.recording-indicator {
+  .recording-indicator {
   display: none;
   font-size: 0.75rem;
   margin-left: 0.25rem;
   animation: blink 1s infinite;
+  font-weight: 500;
 }
 
 .voice-btn.recording .recording-indicator {
@@ -966,6 +1129,88 @@ const formatTime = (date: Date) => {
   .error-banner {
     padding: 0.5rem 1rem;
     font-size: 0.75rem;
+  }
+  
+  .input-wrapper {
+    padding: 0.2rem;
+  }
+  
+  .voice-btn, .send-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1a2e;
+    --card: #16213e;
+    --border: #0f3460;
+    --text-primary: #f5f5f5;
+    --text-secondary: #b0b0b0;
+  }
+  
+  .character-card {
+    background-color: rgba(22, 33, 62, 0.7);
+    border-color: var(--border);
+  }
+  
+  .message.ai {
+    background-color: rgba(22, 33, 62, 0.7);
+  }
+  
+  .chat-input-container {
+    background-color: var(--card);
+    border-top-color: var(--border);
+  }
+  
+  .input-wrapper {
+    background-color: rgba(22, 33, 62, 0.7);
+    border-color: var(--border);
+  }
+  
+  .voice-btn {
+    background-color: rgba(22, 33, 62, 0.7);
+    border-color: var(--border);
+    color: var(--text-primary);
+  }
+  
+  .voice-btn:hover {
+    background-color: var(--border);
+  }
+  
+  .search-input {
+    background-color: rgba(22, 33, 62, 0.7);
+    border-color: var(--border);
+    color: var(--text-primary);
+  }
+  
+  .search-input::placeholder {
+    color: var(--text-muted);
+  }
+  
+  .message-input {
+    color: var(--text-primary);
+  }
+  
+  .message-input::placeholder {
+    color: var(--text-muted);
+  }
+  
+  .category-btn {
+    background-color: rgba(22, 33, 62, 0.7);
+    border-color: var(--border);
+    color: var(--text-primary);
+  }
+  
+  .category-btn:hover {
+    background-color: var(--border);
+  }
+  
+  .typing-dot {
+    background: linear-gradient(135deg, var(--tertiary-color), var(--secondary-color));
   }
 }
 </style>
