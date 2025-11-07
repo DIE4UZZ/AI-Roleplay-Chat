@@ -1,7 +1,6 @@
 package org.example.backend.service.impl;
 
 import org.example.backend.common.JwtUtil;
-import org.example.backend.common.constant;
 import org.example.backend.mapper.LoginMapper;
 import org.example.backend.pojo.*;
 import org.example.backend.service.LoginService;
