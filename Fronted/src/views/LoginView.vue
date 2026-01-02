@@ -13,7 +13,7 @@
         <div class="brand-logo">
           <div class="logo-icon">🎭</div>
           <div class="login-header">
-            <h1>AI 角色扮演语音聊天</h1>
+            <h1 class="gradient-text">AI 角色扮演语音聊天</h1>
             <p>探索无限可能的对话世界</p>
           </div>
         </div>
@@ -370,6 +370,18 @@ const handleGuestLogin = async () => {
   --btn-gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   --btn-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 2.5rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
+  --radius-xl: 2rem;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 /* 主容器样式 */
@@ -378,7 +390,7 @@ const handleGuestLogin = async () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: var(--bg-gradient-primary);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
   position: relative;
   overflow: hidden;
@@ -397,9 +409,10 @@ const handleGuestLogin = async () => {
 .shape {
   position: absolute;
   border-radius: 50%;
-  filter: blur(60px);
-  opacity: 0.4;
-  animation: float 8s infinite ease-in-out;
+  filter: blur(80px);
+  opacity: 0.3;
+  animation: float 10s infinite ease-in-out;
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .shape-1 {
@@ -407,7 +420,6 @@ const handleGuestLogin = async () => {
   left: 10%;
   width: 300px;
   height: 300px;
-  background: var(--primary-color);
   animation-delay: 0s;
 }
 
@@ -416,7 +428,6 @@ const handleGuestLogin = async () => {
   right: 15%;
   width: 400px;
   height: 400px;
-  background: var(--secondary-color);
   animation-delay: 2s;
 }
 
@@ -425,7 +436,6 @@ const handleGuestLogin = async () => {
   right: 20%;
   width: 250px;
   height: 250px;
-  background: var(--accent-color);
   animation-delay: 4s;
 }
 
@@ -443,13 +453,14 @@ const handleGuestLogin = async () => {
 
 /* 登录卡片样式 */
 .login-card {
-  background: var(--card-bg);
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 20px;
   padding: 40px;
   width: 100%;
-  box-shadow: var(--card-shadow);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* 品牌标志 */
@@ -473,6 +484,11 @@ const handleGuestLogin = async () => {
   font-size: 2rem;
   font-weight: 700;
   text-align: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
 }
 
 .login-header p {
@@ -511,12 +527,16 @@ const handleGuestLogin = async () => {
 .tab-btn:hover {
   color: var(--primary-color);
   background: rgba(102, 126, 234, 0.1);
+  transform: translateY(-1px);
 }
 
 .tab-btn.active {
   color: white;
-  background: var(--primary-color);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  background: var(--btn-gradient-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  transform: translateY(-1px);
 }
 
 /* 表单容器 */
@@ -582,7 +602,7 @@ const handleGuestLogin = async () => {
   border: none;
   border-radius: 12px;
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -591,6 +611,24 @@ const handleGuestLogin = async () => {
   gap: 8px;
   position: relative;
   overflow: hidden;
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    0 0 2px rgba(255, 255, 255, 0.8);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  -webkit-text-stroke: 0.5px rgba(0, 0, 0, 0.2);
+}
+
+.submit-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  z-index: -1;
+  border-radius: 12px;
 }
 
 .submit-btn::before {
@@ -625,6 +663,11 @@ const handleGuestLogin = async () => {
 
 .guest-btn {
   background: var(--btn-gradient-secondary);
+  font-weight: 700;
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    0 0 2px rgba(255, 255, 255, 0.8);
+  -webkit-text-stroke: 0.5px rgba(0, 0, 0, 0.2);
 }
 
 /* 游客登录容器 */
@@ -638,6 +681,12 @@ const handleGuestLogin = async () => {
   background: var(--bg-secondary);
   border-radius: 12px;
   border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.guest-info:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
 .guest-icon {
@@ -667,6 +716,12 @@ const handleGuestLogin = async () => {
   background: rgba(255, 107, 107, 0.1);
   border-radius: 8px;
   display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.warning-text:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 /* 错误提示样式 */
@@ -683,6 +738,12 @@ const handleGuestLogin = async () => {
   gap: 8px;
   font-size: 0.95rem;
   border: 1px solid var(--error-border);
+  transition: all 0.3s ease;
+}
+
+.error-message:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 /* 输入错误状态 */
@@ -724,6 +785,7 @@ const handleGuestLogin = async () => {
   color: rgba(255, 255, 255, 0.8);
   font-size: 0.85rem;
   margin: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 /* 加载动画 */
@@ -800,63 +862,184 @@ const handleGuestLogin = async () => {
 }
 
 /* 响应式设计 */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+  /* 中等屏幕优化 */
   .login-card {
-    padding: 25px;
+    max-width: 90%;
+    margin: 0 auto;
+  }
+  
+  .shape {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+}
+
+@media (max-width: 768px) {
+  /* 平板设备优化 */
+  .login-container {
+    padding: var(--spacing-lg);
+  }
+  
+  .login-card {
+    max-width: 100%;
+    padding: var(--spacing-xl);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   .brand-logo {
     flex-direction: column;
-    gap: 10px;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
   }
-
+  
+  .logo-icon {
+    font-size: 2.5rem;
+  }
+  
   .login-header h1 {
-    font-size: 1.6rem;
+    font-size: 1.75rem;
+    margin-bottom: var(--spacing-md);
   }
 
   .tabs {
-    padding: 3px;
+    padding: 4px;
+    margin-bottom: var(--spacing-lg);
   }
 
   .tab-btn {
-    padding: 10px 8px;
-    font-size: 0.9rem;
+    padding: 12px 10px;
+    font-size: 0.95rem;
   }
 
   .form-input {
-    padding: 12px 14px 12px 36px;
+    padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) 40px;
+    font-size: 15px;
   }
 
   .submit-btn {
-    padding: 13px;
+    padding: var(--spacing-md);
     font-size: 1rem;
+    height: 48px;
   }
 
+  .guest-info {
+    padding: var(--spacing-lg);
+  }
+  
+  .guest-icon {
+    font-size: 2.5rem;
+  }
+  
   .shape {
     transform: scale(0.7);
+    opacity: 0.6;
   }
 }
 
 @media (max-width: 480px) {
+  /* 手机设备优化 */
   .login-container {
-    padding: 15px;
+    padding: var(--spacing-md);
+    min-height: 100vh;
   }
 
   .login-card {
-    padding: 20px;
-    border-radius: 16px;
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
   }
 
+  .brand-logo {
+    gap: var(--spacing-xs);
+  }
+  
+  .logo-icon {
+    font-size: 2rem;
+  }
+  
   .login-header h1 {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
   }
 
   .form-group {
-    margin-bottom: 16px;
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  .form-input {
+    padding: var(--spacing-md) var(--spacing-sm) var(--spacing-md) 36px;
+    height: 48px;
+  }
+  
+  .input-icon {
+    font-size: 1rem;
+    left: 12px;
+  }
+
+  .submit-btn {
+    height: 48px;
+    font-size: 0.95rem;
+    margin-top: var(--spacing-md);
+  }
+  
+  .guest-btn {
+    height: 48px;
   }
 
   .guest-info {
-    padding: 16px;
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  .guest-icon {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .guest-info h3 {
+    font-size: 1.2rem;
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .guest-description {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  
+  .error-message {
+    padding: var(--spacing-sm);
+    font-size: 0.9rem;
+    gap: 6px;
+  }
+  
+  .login-footer p {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 360px) {
+  /* 超小屏幕优化 */
+  .login-container {
+    padding: var(--spacing-sm);
+  }
+  
+  .login-card {
+    padding: var(--spacing-md);
+  }
+  
+  .tab-btn {
+    padding: 10px 8px;
+    font-size: 0.9rem;
+  }
+  
+  .form-input {
+    padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-sm) 32px;
+  }
+  
+  .input-icon {
+    left: 10px;
+    font-size: 0.9rem;
   }
 }
 </style>

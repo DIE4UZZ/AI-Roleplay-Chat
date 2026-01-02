@@ -1,5 +1,6 @@
 import api from '../utils/api';
 import type { Character, Message } from '../types/character';
+import voiceService from './voice.service';
 
 // 角色服务
 class CharacterService {
@@ -94,24 +95,47 @@ class CharacterService {
   // 开始语音识别
   async startVoiceRecognition(): Promise<{id: string}> {
     try {
-      const data = await api.post('/voice/start');
-      return data;
+      // 首先检查并请求麦克风权限
+      const hasPermission = await voiceService.checkPermission();
+      if (!hasPermission) {
+        const granted = await voiceService.requestPermission();
+        if (!granted) {
+          throw new Error('需要麦克风权限才能进行语音识别');
+        }
+      }
+
+      // 使用voiceService开始真实录音
+      const sessionId = await voiceService.startRecording();
+      return { id: sessionId };
     } catch (error) {
       console.error('开始语音识别失败:', error);
-      // 在API不可用的情况下返回模拟ID
-      return { id: `voice_${Date.now()}` };
+      // 降级处理：调用原有的API
+        try {
+          const data = await api.post('/voice/start');
+          return data;
+        } catch (apiError) {
+          // 在API也不可用的情况下返回模拟ID
+          return { id: `voice_${Date.now()}` };
+        }
     }
   }
 
   // 结束语音识别
   async stopVoiceRecognition(sessionId: string): Promise<{text: string}> {
     try {
-      const data = await api.post('/voice/stop', { sessionId });
-      return data;
+      // 尝试使用voiceService停止录音并获取真实的识别结果
+      const text = await voiceService.stopRecording(sessionId);
+      return { text };
     } catch (error) {
-      console.error('结束语音识别失败:', error);
-      // 在API不可用的情况下返回模拟文本
-      return { text: '这是一段模拟的语音输入内容' };
+      console.error('语音识别处理失败:', error);
+      // 降级处理：调用原有的API获取模拟结果
+        try {
+          const data = await api.post('/voice/stop', { sessionId });
+          return data;
+        } catch (apiError) {
+          // 在API也不可用的情况下返回模拟文本
+          return { text: '这是一段模拟的语音输入内容' };
+        }
     }
   }
 

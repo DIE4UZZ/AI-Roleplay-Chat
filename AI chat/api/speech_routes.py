@@ -21,6 +21,7 @@ from api.models import (
 from speech.recognition import speech_recognizer
 from speech.tts import tts_engine
 from speech.audio_utils import audio_utils
+from speech.audio_converter import audio_converter
 from api.chat_routes import ModelManager
 
 # 创建路由实例
@@ -32,6 +33,117 @@ logger = logging.getLogger("ai_chat_service.api.speech")
 # 语音识别会话管理
 recognition_sessions: Dict[str, Dict] = {}
 
+
+# 音频格式转换接口
+@router.post("/convert-audio", responses={400: {"model": ErrorResponse}, 500: {"model": ErrorResponse}})
+async def convert_audio_format(
+    file: UploadFile = File(...),
+    target_format: str = Form("wav"),
+    sample_rate: int = Form(None),
+    channels: int = Form(None)
+):
+    """
+    音频格式转换接口
+    
+    - **file**: 输入音频文件
+    - **target_format**: 目标格式（支持的格式：wav, webm, mp3）
+    - **sample_rate**: 目标采样率（可选）
+    - **channels**: 目标声道数（可选）
+    
+    返回：转换后的音频文件
+    """
+    try:
+        logger.info(f"接收到音频格式转换请求，原始文件: {file.filename}, 目标格式: {target_format}")
+        
+        # 读取音频文件内容
+        audio_bytes = await file.read()
+        
+        # 检查目标格式
+        if target_format.lower() not in ['wav', 'webm', 'mp3']:
+            raise HTTPException(status_code=400, detail=f"不支持的目标格式: {target_format}，支持的格式: wav, webm, mp3")
+        
+        # 根据目标格式选择转换方法
+        if target_format.lower() == 'wav':
+            # 转换任意格式到WAV
+            converted_path, error = audio_converter.convert_bytes_to_wav(
+                audio_bytes=audio_bytes,
+                original_filename=file.filename,
+                sample_rate=sample_rate or env_config.AUDIO_SAMPLE_RATE,
+                channels=channels or env_config.AUDIO_CHANNELS
+            )
+        elif target_format.lower() == 'webm':
+            # 先转换为WAV，再转换为WebM
+            # 第一步：转换为WAV
+            wav_path, error1 = audio_converter.convert_bytes_to_wav(
+                audio_bytes=audio_bytes,
+                original_filename=file.filename,
+                sample_rate=sample_rate or env_config.AUDIO_SAMPLE_RATE,
+                channels=channels or env_config.AUDIO_CHANNELS
+            )
+            
+            if wav_path:
+                # 第二步：转换为WebM
+                converted_path, error2 = audio_converter.wav_to_webm(
+                    input_data=wav_path,
+                    quality="medium"
+                )
+                error = error2
+            else:
+                converted_path = None
+                error = error1
+        else:  # mp3
+            # 对于MP3格式，直接使用pydub进行转换
+            import tempfile
+            fd, temp_path = tempfile.mkstemp(suffix='.mp3')
+            os.close(fd)
+            
+            try:
+                from pydub import AudioSegment
+                import io
+                
+                # 读取音频数据
+                audio = AudioSegment.from_file(io.BytesIO(audio_bytes))
+                
+                # 应用采样率和声道数设置
+                if sample_rate:
+                    audio = audio.set_frame_rate(sample_rate)
+                if channels:
+                    audio = audio.set_channels(channels)
+                
+                # 导出为MP3
+                audio.export(temp_path, format="mp3", bitrate="128k")
+                converted_path = temp_path
+                error = None
+                
+            except Exception as e:
+                converted_path = None
+                error = f"MP3转换失败: {str(e)}"
+        
+        if error:
+            logger.error(f"音频格式转换失败: {error}")
+            raise HTTPException(status_code=400, detail=error)
+        
+        logger.info(f"音频格式转换成功: {converted_path}")
+        
+        # 根据目标格式设置响应类型
+        content_type_map = {
+            'wav': 'audio/wav',
+            'webm': 'audio/webm', 
+            'mp3': 'audio/mpeg'
+        }
+        
+        # 返回转换后的音频文件
+        return FileResponse(
+            path=converted_path,
+            media_type=content_type_map[target_format.lower()],
+            filename=f"converted_{file.filename.rsplit('.', 1)[0]}.{target_format}"
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"音频格式转换处理失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="内部服务器错误")
 
 # 语音识别接口
 @router.post("/recognize", response_model=SpeechRecognitionResponse, responses={400: {"model": ErrorResponse}, 500: {"model": ErrorResponse}})
@@ -265,7 +377,7 @@ async def stop_voice_recognition(request: Request):
         # 在实际应用中，这里应该获取实时语音识别的结果
         # 目前我们返回一个模拟的识别结果
         # 注意：在实际部署时，应该使用真实的语音识别功能
-        simulated_text = "这是一段模拟的语音输入内容，在实际应用中会被真实的识别结果替换"
+        simulated_text = "介绍下以自己"
         
         logger.info(f"语音识别会话完成，结果: {simulated_text}")
         

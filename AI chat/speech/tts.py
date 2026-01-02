@@ -9,6 +9,7 @@ from pydub import AudioSegment
 from pydub.playback import play
 
 from config import env_config
+from speech.audio_converter import audio_converter
 
 logger = logging.getLogger("ai_chat_service.speech.tts")
 
@@ -418,6 +419,82 @@ class TextToSpeech:
             error = f"语音播放失败: {str(e)}"
             logger.error(error)
             return False, error
+    
+    def convert_audio_for_tts(self, audio_path: str) -> Tuple[Optional[str], Optional[str]]:
+        """
+        将音频文件转换为TTS兼容的WAV格式
+        
+        参数:
+            audio_path: 输入音频文件路径
+        
+        返回:
+            (转换后的WAV文件路径, 错误信息)
+        """
+        try:
+            logger.info(f"开始转换音频文件为TTS兼容格式: {audio_path}")
+            
+            # 创建输出文件路径
+            fd, wav_path = tempfile.mkstemp(suffix='.wav')
+            os.close(fd)
+            
+            # 使用音频转换器转换
+            converted_path, error = audio_converter.webm_to_wav(
+                input_data=audio_path,
+                output_path=wav_path,
+                sample_rate=env_config.AUDIO_SAMPLE_RATE,
+                channels=env_config.AUDIO_CHANNELS
+            )
+            
+            if converted_path:
+                logger.info(f"音频转换成功: {converted_path}")
+                return converted_path, None
+            else:
+                logger.error(f"音频转换失败: {error}")
+                return None, error
+                
+        except Exception as e:
+            error = f"音频格式转换失败: {str(e)}"
+            logger.error(error)
+            return None, error
+    
+    def convert_audio_bytes_for_tts(self, audio_bytes: bytes, original_filename: str) -> Tuple[Optional[str], Optional[str]]:
+        """
+        将音频字节数据转换为TTS兼容的WAV格式
+        
+        参数:
+            audio_bytes: 音频字节数据
+            original_filename: 原始文件名
+        
+        返回:
+            (转换后的WAV文件路径, 错误信息)
+        """
+        try:
+            logger.info(f"开始转换音频字节数据为TTS兼容格式，文件名: {original_filename}")
+            
+            # 创建输出文件路径
+            fd, wav_path = tempfile.mkstemp(suffix='.wav')
+            os.close(fd)
+            
+            # 使用音频转换器转换
+            converted_path, error = audio_converter.convert_bytes_to_wav(
+                audio_bytes=audio_bytes,
+                original_filename=original_filename,
+                output_path=wav_path,
+                sample_rate=env_config.AUDIO_SAMPLE_RATE,
+                channels=env_config.AUDIO_CHANNELS
+            )
+            
+            if converted_path:
+                logger.info(f"音频字节数据转换成功: {converted_path}")
+                return converted_path, None
+            else:
+                logger.error(f"音频字节数据转换失败: {error}")
+                return None, error
+                
+        except Exception as e:
+            error = f"音频字节数据格式转换失败: {str(e)}"
+            logger.error(error)
+            return None, error
 
 # 创建全局实例
 tts_engine = TextToSpeech()

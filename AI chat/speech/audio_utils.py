@@ -111,8 +111,13 @@ class AudioUtils:
             sample_rate = sample_rate or env_config.AUDIO_SAMPLE_RATE
             channels = channels or env_config.AUDIO_CHANNELS
             
-            # 确保目录存在
-            os.makedirs(os.path.dirname(output_file), exist_ok=True)
+            # 检查输出文件路径
+            output_dir = os.path.dirname(output_file)
+            
+            # 只有当目录不为空时才创建目录
+            if output_dir:
+                # 确保目录存在
+                os.makedirs(output_dir, exist_ok=True)
             
             wf = wave.open(output_file, 'wb')
             wf.setnchannels(channels)
